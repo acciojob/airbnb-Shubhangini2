@@ -23,17 +23,20 @@ import java.util.UUID;
 public class HotelManagementController {
     HotelManagementService hotelManagementService= new HotelManagementService();
 
+
     @PostMapping("/add-hotel")
     public String addHotel(@RequestBody Hotel hotel){
-
         //You need to add an hotel to the database
         //incase the hotelName is null or the hotel Object is null return an empty a FAILURE
         //Incase somebody is trying to add the duplicate hotelName return FAILURE
         //in all other cases return SUCCESS after successfully adding the hotel to the hotelDb.
-
-        hotelManagementService.addHotel(hotel);
-        return null;
+        if(hotelManagementService.addHotel(hotel)){
+            return "SUCCESS";
+        }
+        return "FAILURE";
     }
+
+
 
     @PostMapping("/add-user")
     public Integer addUser(@RequestBody User user){
@@ -41,19 +44,23 @@ public class HotelManagementController {
         //You need to add a User Object to the database
         //Assume that user will always be a valid user and return the aadharCardNo of the user
         hotelManagementService.addUser(user);
-       return null;
+       return user.getaadharCardNo();
     }
 
+
+
     @GetMapping("/get-hotel-with-most-facilities")
-    public String getHotelWithMostFacilities(@PathVariable String hotelName){
+    public String getHotelWithMostFacilities(@PathVariable String hotelName){ //pathVariable not given
 
         //Out of all the hotels we have added so far, we need to find the hotelName with most no of facilities
         //Incase there is a tie return the lexicographically smaller hotelName
         //Incase there is not even a single hotel with atleast 1 facility return "" (empty string)
 
-        Hotel hotel = hotelManagementService.findHotel(hotelName);
+        String result="";
+        int facilities= 0;
+        String ans="";
+      return ans;
 
-        return null;
     }
 
     @PostMapping("/book-a-room")
@@ -66,7 +73,11 @@ public class HotelManagementController {
         //If there arent enough rooms available in the hotel that we are trying to book return -1 
         //in other case return total amount paid
         hotelManagementService.addBooking(booking);
-        return 0;
+        int totalAmountPaidByUser = + booking.getAmountToBePaid();
+        if(booking.getNoOfRooms()==0){
+            return -1;
+        }
+        return booking.getAmountToBePaid();
     }
     
     @GetMapping("/get-bookings-by-a-person/{aadharCard}")
