@@ -33,4 +33,8 @@ public class Hotel {
     public int getPricePerNight() {
         return pricePerNight;
     }
+
+    public void setFacilities(List<Facility> facilities) {
+        this.facilities = facilities;
+    }
 }

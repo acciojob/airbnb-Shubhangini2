@@ -90,16 +90,16 @@ public class HotelManagementController {
         return Bookings;
     }
 
-//    @PutMapping("/update-facilities")
-//    public Hotel updateFacilities(List<Facility> newFacilities,String hotelName){
-//        //We are having a new facilites that a hotel is planning to bring.
-//        //If the hotel is already having that facility ignore that facility otherwise add that facility in the hotelDb
-//        //return the final updated List of facilities and also update that in your hotelDb
-//        //Note that newFacilities can also have duplicate facilities possible
-//
-//        Hotel hotelWithUpdatedFacility= hotelManagementService.updateFacilities(newFacilities,hotelName);
-//        return hotelWithUpdatedFacility;
-//    }
+    @PutMapping("/update-facilities")
+    public Hotel updateFacilities(List<Facility> newFacilities,String hotelName){
+        //We are having a new facilites that a hotel is planning to bring.
+        //If the hotel is already having that facility ignore that facility otherwise add that facility in the hotelDb
+        //return the final updated List of facilities and also update that in your hotelDb
+        //Note that newFacilities can also have duplicate facilities possible
+
+        return hotelManagementService.update(newFacilities,hotelName);
+
+    }
 
 }
 
