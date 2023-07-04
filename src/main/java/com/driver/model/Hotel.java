@@ -22,31 +22,15 @@ public class Hotel {
         return hotelName;
     }
 
-    public void setHotelName(String hotelName) {
-        this.hotelName = hotelName;
-    }
-
     public int getAvailableRooms() {
         return availableRooms;
-    }
-
-    public void setAvailableRooms(int availableRooms) {
-        this.availableRooms = availableRooms;
     }
 
     public List<Facility> getFacilities() {
         return facilities;
     }
 
-    public void setFacilities(List<Facility> facilities) {
-        this.facilities = facilities;
-    }
-
     public int getPricePerNight() {
         return pricePerNight;
-    }
-
-    public void setPricePerNight(int pricePerNight) {
-        this.pricePerNight = pricePerNight;
     }
 }

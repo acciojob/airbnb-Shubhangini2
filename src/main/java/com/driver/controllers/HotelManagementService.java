@@ -1,4 +1,5 @@
 package com.driver.controllers;
+import java.awt.print.Book;
 import java.util.Optional;
 
 import com.driver.model.Booking;
@@ -9,65 +10,153 @@ import org.springframework.http.server.DelegatingServerHttpResponse;
 
 import java.util.List;
 import java.util.Optional;
-
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 public class HotelManagementService {
 
     HotelManagementRepository hotelManagementRepository = new HotelManagementRepository();
 
-    //You need to add an hotel to the database
-    //incase the hotelName is null or the hotel Object is null return an empty a FAILURE
-    //Incase somebody is trying to add the duplicate hotelName return FAILURE
-    //in all other cases return SUCCESS after successfully adding the hotel to the hotelDb.
-    public Boolean addHotel(Hotel hotel) {
-        Optional<Hotel> hotelOpt= hotelManagementRepository.getByHotelName(hotel.getHotelName());//Check for duplicacy
-        if(hotelOpt.isPresent()){
-            return false;
+    public String addHotel(Hotel hotel) {
+        //You need to add a hotel to the database
+        //Incase the hotelName is null or the hotel Object is null return an empty a FAILURE
+        Optional<Hotel> hotelOpt = hotelManagementRepository.getByName(hotel.getHotelName());
+        //Incase somebody is trying to add the duplicate hotelName return FAILURE
+        if (hotelOpt.isPresent()) {
+            return "FAILURE";
         }
-        return hotelManagementRepository.addHotel(hotel);
+        if (hotel.getHotelName().isEmpty()) {
+            return "FAILURE";
+        }
+        //in all other cases return SUCCESS after successfully adding the hotel to the hotelDb.
+        hotelManagementRepository.addHotel(hotel);
+        return "SUCCESS";
+    }
+
+    public int bookARoom(Booking booking) {
+
+        int totalAmountToBePaid=0;
+
+
+        List<Hotel> hotels = hotelManagementRepository.getAllHotels();
+
+
+        //Have bookingId as a random UUID generated String
+        String bookingId = UUID.randomUUID().toString();
+        booking.setBookingId(bookingId);
+        //save the booking Entity and keep the bookingId as a primary key
+        hotelManagementRepository.saveBooking(booking);
+        //Calculate the total amount paid by the person based on no. of rooms booked and price of the room per night.
+        for(Hotel hotel : hotels) {
+            if (booking.getHotelName().equals(hotel.getHotelName())) {
+                totalAmountToBePaid = booking.getNoOfRooms() * hotel.getPricePerNight();
+                //If there arent enough rooms available in the hotel that we are trying to book return -1
+                if (booking.getNoOfRooms() > hotel.getAvailableRooms()) {
+                    totalAmountToBePaid = -1;
+                    return totalAmountToBePaid;
+                }
+            }
+            //Set total amount to be paid
+            booking.setAmountToBePaid(totalAmountToBePaid);
+            //in other case return total amount paid
+        }
+        return totalAmountToBePaid;
     }
 
 
-    //You need to add a User Object to the database
     public Integer addUser(User user) {
-
-        return  hotelManagementRepository.addUser(user);
+        hotelManagementRepository.addUser(user);
+        return user.getAadharCardNo();
     }
 
+    public String getHotelWithMostFacilities() {
+        //Out of all the hotels we have added so far, we need to find the hotelName with most no of facilities
+        //Incase there is a tie return the lexicographically smaller hotelName
+        //Incase there is not even a single hotel with atleast 1 facility return "" (empty string)
+        return hotelManagementRepository.getHotelWithMostFacilities();
 
-    //Out of all the hotels we have added so far, we need to find the hotelName with most no of facilities
-    //Incase there is a tie return the lexicographically smaller hotelName
-    //Incase there is not even a single hotel with atleast 1 facility return "" (empty string)
-    public Boolean getHotelWithMostFacilities(Hotel hotelName) {
+    }
 
-        if(hotelManagementRepository.getHotelWithMostFacilities(hotelName)){
-            return true;
+    public int getBookings(Integer aadharCard) {
+
+        int totalBookings=0;
+        List<Booking> bookings = hotelManagementRepository.getAllBookings();
+
+        for(Booking booking : bookings){
+            if(booking.getBookingAadharCard()==aadharCard){
+                 totalBookings = booking.getNoOfRooms();
+            }
         }
-        return false;
+        return totalBookings;
+    }
+
+//    public Hotel updateFacilities(List<Facility> newFacilities, String hotelName) {
+//
+//        //We are having a new facilites that a hotel is planning to bring.
+//        //If the hotel is already having that facility ignore that facility otherwise add that facility in the hotelDb
+//        //return the final updated List of facilities and also update that in your hotelDb
+//        //Note that newFacilities can also have duplicate facilities possible
+//
+//        List<Hotel> hotels = hotelManagementRepository.getAllHotels();
+//
+//        Set<Facility> existingFacilities = new HashSet<>();
+//
+//
+//
+//        for(Hotel hotel : hotels){
+//            if(hotel.getHotelName().equals(hotelName)){
+//                if(!hotel.getFacilities().equals(newFacilities)){
+//                    hotelManagementRepository.addHotel();
+//                }
+//
+//                for(Facility facility : hotel.getFacilities()){
+//                    existingFacilities.add(facility);
+//                }
+//            }
+//        }
+
     }
 
 
-
-    //The booking object coming from postman will have all the attributes except bookingId and amountToBePaid;
-    //Have bookingId as a random UUID generated String
-    //save the booking Entity and keep the bookingId as a primary key
-    //Calculate the total amount paid by the person based on no. of rooms booked and price of the room per night.
-    //If there arent enough rooms available in the hotel that we are trying to book return -1
-    //in other case return total amount paid
-
-    public void addBooking(Booking booking) {
-        hotelManagementRepository.addBooking(booking);
-    }
-
-
-
-    public int findBookingsByPerson(Integer aadharCard) {
-       return hotelManagementRepository.findBookingsByPerson(aadharCard);
-
-    }
+//    public Hotel updateFacilities(List<Facility> newFacilities, String hotelName) {
+//        //We are having a new facilites that a hotel is planning to bring.
+//        //If the hotel is already having that facility ignore that facility otherwise add that facility in the hotelDb
+//        //return the final updated List of facilities and also update that in your hotelDb
+//        //Note that newFacilities can also have duplicate facilities possible
+//        Hotel hotel = hotelManagementRepository.getHotelName(hotelName);
+//        Set<Facility> existingFacilities = new HashSet<>();
+//
+//        for (Facility facility : hotel.getFacilities()) {
+//            existingFacilities.add(facility.getName());
+//        }
+//        hotelManagementRepository.addHotel(hotel);
+//    }
+//}
 
 
+//    public int bookARoom(Booking booking, int roomPricePerNight, int availableRooms) {
+//
+//        //The booking object coming from postman will have all the attributes except bookingId and amountToBePaid;
+//        //Have bookingId as a random UUID generated String
+//        String bookingId = UUID.randomUUID().toString();
+//        booking.setBookingId(bookingId);
+//        //save the booking Entity and keep the bookingId as a primary key
+//        hotelManagementRepository.saveBooking(booking);
+//        //Calculate the total amount paid by the person based on no. of rooms booked and price of the room per night.
+//        int totalAmountPaid = booking.getNoOfRooms() * roomPricePerNight;
+//        //If there arent enough rooms available in the hotel that we are trying to book return -1
+//        if (booking.getNoOfRooms() > availableRooms) {
+//            return -1;
+//        }
+//        //Set total amount to be paid
+//        booking.setAmountToBePaid(totalAmountPaid);
+//        //in other case return total amount paid
+//
+//        return totalAmountPaid;
+//    }
 
-    public void createNewFacilities(List<Facility> newFacilities, String hotelName) {
 
-    }
-}
+//    public int getBookings(int aadharCard) {
+//
+//        return hotelManagementRepository.getBookings(aadharCard);
+//    }
